@@ -1,0 +1,1 @@
+Setup:  To install dpendencies use pip install -r requirements.txt
