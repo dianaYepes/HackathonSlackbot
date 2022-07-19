@@ -39,46 +39,6 @@ def fetch_keywords(text):
     return tokens
 
 
-from pickle import TRUE
-import slack
-import os
-import spacy
-from string import punctuation
-from pathlib import Path
-from dotenv import load_dotenv
-from flask import Flask, request, Response
-from slackeventsapi import SlackEventAdapter
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
-
-load_nlp = spacy.load("en_core_web_sm")
-#run spacy download en_core_web_sm 
-
-
-#loading our env variables -->these variables are in the .env file for security reasons.  They are tokens that should not be public
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
-key = os.environ.get('BOT_TOKEN')
-client = WebClient(token = key)
-
-
-#initiate flask app with our file name
-app= Flask(__name__)
-
-
-def fetch_keywords(text):
-    tokens = []
-    pos_tag = ['PROPN', 'ADJ', 'NOUN'] 
-    doc = load_nlp(text.lower()) 
-    for token in doc:
-        if(token.text in load_nlp.Defaults.stop_words or token.text in punctuation):
-            continue
-        if(token.pos_ in pos_tag):
-            tokens.append(token.text)
-    print(tokens)
-    return tokens
-
-
 def findRelevantMessages(channel_name,textList):
     api_response = client.api_test()
     custom_search = True
