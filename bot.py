@@ -1,8 +1,10 @@
 from pickle import TRUE
 import slack
 import os
+import time
 import spacy
 import json
+import threading
 from string import punctuation
 from pathlib import Path
 from dotenv import load_dotenv
@@ -24,7 +26,6 @@ client = WebClient(token = key)
 
 #initiate flask app with our file name
 app= Flask(__name__)
-
 
 def fetch_keywords(text):
     tokens = []
@@ -76,31 +77,52 @@ def findRelevantMessages(channel_name,textList):
 
     keywords = textList
     jsonObject = {}
-    print(conversation_history_link)
+    jsonList=[]
     for i, message in enumerate(conversation_history):
+
+
+
+
+
+        
         if any(x in message["text"] for x in keywords):
+
+
+
+
+
+
             link=conversation_history_link[i]["permalink"]
             jsonObject = {
-                "resultLink":link,
+                "pretext":"resultLink",
+                "text":link,
             }
-            print(json.dumps(jsonObject))
+            jsonList.append(jsonObject)
+    json.dumps(jsonList)
+    return(jsonList)
 
+    
 
 @app.route('/question',methods= ['GET','POST'])
 def recieved():
-    data = request.form
-    question = data['text']
-    user = data['user_name']
-    channel_name = data['channel_name']
-    textList= (fetch_keywords(question))
-    findRelevantMessages(channel_name,textList)
-    client.chat_postMessage(channel=channel_name,text=question, username=user)
-    return Response(), 200
-       
+    form = request.form
+    print(form)
+    question = form['text']
+    user = form['user_name']
+    channel_name = form['channel_name']
+    channel_id=form['channel_id']
+    user_id=form['user_id']
+    def do_work(channel_name,question):
+        client.chat_postMessage(channel=channel_name,text=question, username=user)
+        textList= (fetch_keywords(question))
+        jsonList=(findRelevantMessages(channel_name,textList))
+        client.chat_postEphemeral(channel=channel_id,user=user_id,text="here is a list of valuable suggestions",attachments=jsonList)
+    thread = threading.Thread(target=do_work, args=(channel_name,question))
+    thread.start()
+    return Response(),200
+   
 
 #making sure we only run webserver when we have to, not if this gets imported to another file
 if __name__ == '__main__':
     app.run(debug=True)
-
-
 
