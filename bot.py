@@ -79,19 +79,7 @@ def findRelevantMessages(channel_name,textList):
     jsonObject = {}
     jsonList=[]
     for i, message in enumerate(conversation_history):
-
-
-
-
-
-        
         if any(x in message["text"] for x in keywords):
-
-
-
-
-
-
             link=conversation_history_link[i]["permalink"]
             jsonObject = {
                 "pretext":"resultLink",
