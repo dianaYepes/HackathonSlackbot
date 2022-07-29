@@ -5,3 +5,4 @@ slackeventsapi
 nltk
 spacy==3.4.0
 slack_sdk
+requests
